@@ -1,0 +1,165 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PassCheck | Password Security Analyzer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <header class="topbar">
+        <div class="brand">
+            <span class="brand-icon">PC</span>
+            <span>PassCheck</span>
+        </div>
+        <span class="header-label">PASSWORD SECURITY ANALYZER</span>
+    </header>
+
+    <main class="container">
+
+        <section class="intro">
+            <span class="eyebrow">PERSONAL SECURITY TOOL</span>
+            <h1>Evaluate Your Password Security</h1>
+            <p>
+                Analyze password characteristics, identify weaknesses,
+                and receive recommendations to improve your security.
+            </p>
+        </section>
+
+        <section class="analyzer-card">
+            <div class="card-heading">
+                <div>
+                    <h2>Password Analyzer</h2>
+                    <p>Enter a password to begin your security assessment.</p>
+                </div>
+                <span class="status">LOCAL ANALYSIS</span>
+            </div>
+
+            <form method="POST" action="{{ url_for('index') }}">
+                <label for="password">Password to analyze</label>
+
+                <div class="password-input">
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        maxlength="256"
+                        autocomplete="off"
+                        placeholder="Enter a sample password..."
+                        required
+                    >
+                    <button type="button" id="togglePassword">
+                        Show
+                    </button>
+                </div>
+
+                <p class="privacy-note">
+                    Your password is analyzed locally and is never
+                    written to the audit log.
+                </p>
+
+                <button type="submit" class="analyze-button">
+                    Analyze Password
+                </button>
+            </form>
+
+            {% if error %}
+                <div class="error-message" role="alert">
+                    {{ error }}
+                </div>
+            {% endif %}
+
+            {% if result %}
+                <div class="results">
+                    <div class="result-heading">
+                        <h2>Analysis Results</h2>
+                        <span class="strength strength-{{ result.strength | lower | replace(' ', '-') }}">
+                            {{ result.strength }}
+                        </span>
+                    </div>
+
+                    <div class="score-container">
+                        <span>Security characteristics</span>
+                        <strong>{{ result.score }}/5</strong>
+                    </div>
+
+                    <div class="progress-track">
+                        <div
+                            class="progress-fill"
+                            style="width: {{ result.score * 20 }}%;"
+                        ></div>
+                    </div>
+
+                    <h3>Security Checklist</h3>
+
+                    <ul class="checklist">
+                        {% for name, passed in result.checks.items() %}
+                            <li>
+                                <span>{{ name | title }}</span>
+                                {% if passed %}
+                                    <span class="passed">PASS</span>
+                                {% else %}
+                                    <span class="failed">FAIL</span>
+                                {% endif %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+
+                    <h3>Recommendations</h3>
+
+                    {% if result.recommendations %}
+                        <ul class="recommendations">
+                            {% for recommendation in result.recommendations %}
+                                <li>{{ recommendation }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="success-message">
+                            All five password characteristics passed.
+                        </p>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </section>
+
+        <section class="security-info">
+            <h2>Security Principles</h2>
+            <div class="info-grid">
+                <div>
+                    <h3>Input Validation</h3>
+                    <p>Submitted values are checked against defined limits.</p>
+                </div>
+                <div>
+                    <h3>Privacy</h3>
+                    <p>Submitted passwords are not stored in audit records.</p>
+                </div>
+                <div>
+                    <h3>Audit Logging</h3>
+                    <p>Analysis events are recorded for security monitoring.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer>
+        <p>PassCheck | Educational Cybersecurity Project</p>
+        <p>UMGC CYOP Coursework | 2026</p>
+    </footer>
+
+    <script>
+        const passwordField = document.getElementById("password");
+        const toggleButton = document.getElementById("togglePassword");
+
+        toggleButton.addEventListener("click", function () {
+            const isHidden = passwordField.type === "password";
+
+            passwordField.type = isHidden ? "text" : "password";
+            toggleButton.textContent = isHidden ? "Hide" : "Show";
+        });
+    </script>
+
+</body>
+</html>
